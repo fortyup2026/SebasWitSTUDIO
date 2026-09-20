@@ -1,25 +1,26 @@
-# SebasWeb Studios FINAL - sin carpeta assets
+# SebasWeb Studios V10 Pro
 
-Esta variante existe para subir desde GitHub móvil sin crear carpetas.
+Subí **todos los archivos de esta carpeta directamente a la raíz del repositorio de GitHub**. No hace falta crear `assets/` ni `api/`.
 
-Subí TODOS los archivos directamente a la raíz del repositorio. No hay carpeta `assets`.
+## Variables de Vercel
 
-Incluye:
-- index.html
-- app.js
-- styles.css
-- studio.js
-- vercel.json
-- studio-map.png
-- avatar-sebas.png
-- avatar-facu.png
-- avatar-chevy.png
-- avatar-vera.png
-- avatar-nora.png
-- avatar-luca.png
-- avatar-iris.png
-- avatar-echo.png
-- avatar-atlas.png
-- avatar-luz.png
+Para datos Windsor en vivo:
 
-Para datos reales de Windsor, Vercel necesita la variable de entorno `WINDSOR_API_KEY`.
+- `WINDSOR_API_KEY`
+
+Spotify opcional:
+
+- `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
+- `SPOTIFY_ARTIST_ID`
+
+Sin las claves la app sigue funcionando en **MODO SEGURO** con la última snapshot incorporada.
+
+## Qué cambia en V10 Pro
+
+- La maqueta es una imagen limpia sin personas incrustadas.
+- Cada NPC es un PNG independiente y se mueve por encima de la maqueta.
+- No hay globos con caras recortadas.
+- Horario operativo, almuerzos por turnos, reuniones y pausas.
+- Facu centraliza notificaciones durante 10 días.
+- Cada sector tiene informe independiente.
