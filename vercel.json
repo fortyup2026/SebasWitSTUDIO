@@ -5,13 +5,23 @@
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "app.js", "use": "@vercel/static" },
     { "src": "styles.css", "use": "@vercel/static" },
-    { "src": "assets/**", "use": "@vercel/static" }
+    { "src": "studio-map.png", "use": "@vercel/static" },
+    { "src": "avatar-sebas.png", "use": "@vercel/static" },
+    { "src": "avatar-facu.png", "use": "@vercel/static" },
+    { "src": "avatar-chevy.png", "use": "@vercel/static" },
+    { "src": "avatar-vera.png", "use": "@vercel/static" },
+    { "src": "avatar-nora.png", "use": "@vercel/static" },
+    { "src": "avatar-luca.png", "use": "@vercel/static" },
+    { "src": "avatar-iris.png", "use": "@vercel/static" },
+    { "src": "avatar-echo.png", "use": "@vercel/static" },
+    { "src": "avatar-atlas.png", "use": "@vercel/static" },
+    { "src": "avatar-luz.png", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/studio", "dest": "/studio.js" },
-    { "src": "/assets/(.*)", "dest": "/assets/$1" },
     { "src": "/app.js", "dest": "/app.js" },
     { "src": "/styles.css", "dest": "/styles.css" },
+    { "src": "/(.*\\.png)", "dest": "/$1" },
     { "src": "/", "dest": "/index.html" }
   ],
   "headers": [

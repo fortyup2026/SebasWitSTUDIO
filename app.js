@@ -13,16 +13,16 @@ const SAFE_DATA = {
 };
 
 const PEOPLE = {
-  sebas:{name:"Sebas",role:"Director General",home:"sebas",avatar:"/assets/avatar-sebas.png"},
-  facu:{name:"Facu",role:"Coordinación y Notificaciones",home:"facu",avatar:"/assets/avatar-facu.png"},
-  chevy:{name:"Chevy",role:"YouTube Analytics",home:"youtube",avatar:"/assets/avatar-chevy.png"},
-  vera:{name:"Vera",role:"YouTube Contenido",home:"youtube",avatar:"/assets/avatar-vera.png"},
-  nora:{name:"Nora",role:"TikTok SebasWit",home:"tiktokMain",avatar:"/assets/avatar-nora.png"},
-  luca:{name:"Luca",role:"TikTok DUAL / Nexus",home:"tiktokDual",avatar:"/assets/avatar-luca.png"},
-  iris:{name:"Iris",role:"Instagram",home:"instagram",avatar:"/assets/avatar-iris.png"},
-  echo:{name:"Echo",role:"Spotify",home:"spotify",avatar:"/assets/avatar-echo.png"},
-  atlas:{name:"Atlas",role:"Estrategia",home:"strategy",avatar:"/assets/avatar-atlas.png"},
-  luz:{name:"Luz",role:"Publishing",home:"publishing",avatar:"/assets/avatar-luz.png"}
+  sebas:{name:"Sebas",role:"Director General",home:"sebas",avatar:"/avatar-sebas.png"},
+  facu:{name:"Facu",role:"Coordinación y Notificaciones",home:"facu",avatar:"/avatar-facu.png"},
+  chevy:{name:"Chevy",role:"YouTube Analytics",home:"youtube",avatar:"/avatar-chevy.png"},
+  vera:{name:"Vera",role:"YouTube Contenido",home:"youtube",avatar:"/avatar-vera.png"},
+  nora:{name:"Nora",role:"TikTok SebasWit",home:"tiktokMain",avatar:"/avatar-nora.png"},
+  luca:{name:"Luca",role:"TikTok DUAL / Nexus",home:"tiktokDual",avatar:"/avatar-luca.png"},
+  iris:{name:"Iris",role:"Instagram",home:"instagram",avatar:"/avatar-iris.png"},
+  echo:{name:"Echo",role:"Spotify",home:"spotify",avatar:"/avatar-echo.png"},
+  atlas:{name:"Atlas",role:"Estrategia",home:"strategy",avatar:"/avatar-atlas.png"},
+  luz:{name:"Luz",role:"Publishing",home:"publishing",avatar:"/avatar-luz.png"}
 };
 
 const LOCATIONS = {
@@ -182,7 +182,7 @@ function render(){
     <section class="hero"><article class="panel director-panel"><span class="eyebrow">DIRECCIÓN GENERAL</span><h2>Centro de decisiones</h2><p>Los sectores analizan sus datos, Atlas cruza oportunidades y Facu concentra lo que necesita tu atención.</p><div class="kpis"><div class="kpi"><small>TRABAJANDO</small><strong>${counts.working}</strong></div><div class="kpi"><small>EN REUNIÓN</small><strong>${counts.meeting}</strong></div><div class="kpi"><small>ALMUERZO</small><strong>${counts.lunch}</strong></div><div class="kpi"><small>AVISOS NUEVOS</small><strong>${unread}</strong></div></div></article>
     <article class="panel facu-card"><div><div class="facu-head"><img src="${PEOPLE.facu.avatar}" alt="Facu"><div><h3>Facu</h3><p>Coordinación y Centro de Notificaciones</p></div></div><div class="facu-summary">${unread?`Tenés ${unread} aviso${unread===1?"":"s"} nuevo${unread===1?"":"s"}.`:"No hay avisos nuevos."} ${p[0]||"La operación está estable."}</div></div><div class="facu-actions"><button class="btn primary" id="facuCenter">Abrir centro</button><button class="btn" id="askFacu">Consultar</button></div></article></section>
     <div class="section-head"><div><h2>La empresa ahora</h2><p>Los NPC siguen horarios reales. Trabajan, almuerzan por turnos, se reúnen cuando corresponde y vuelven a sus puestos.</p></div><div class="live-summary">${clock(now)} · ${counts.working} trabajando · ${counts.meeting} reunión · ${counts.lunch} almuerzo</div></div>
-    <section class="panel map-card"><div class="studio-map" id="studioMap"><img src="/assets/studio-map.png" alt="Mapa de SebasWeb Studios"><div class="map-vignette"></div>${renderHotspots()}${renderNpcs(states)}</div><div class="legend"><span><i style="background:#67d99b"></i>Trabajando</span><span><i style="background:#9c8cff"></i>Reunión</span><span><i style="background:#f6bb68"></i>Almuerzo</span><span><i style="background:#58bdf7"></i>Pausa</span><span><i style="background:#687386"></i>Fuera de horario</span></div></section>
+    <section class="panel map-card"><div class="studio-map" id="studioMap"><img src="/studio-map.png" alt="Mapa de SebasWeb Studios"><div class="map-vignette"></div>${renderHotspots()}${renderNpcs(states)}</div><div class="legend"><span><i style="background:#67d99b"></i>Trabajando</span><span><i style="background:#9c8cff"></i>Reunión</span><span><i style="background:#f6bb68"></i>Almuerzo</span><span><i style="background:#58bdf7"></i>Pausa</span><span><i style="background:#687386"></i>Fuera de horario</span></div></section>
     <div class="section-head"><div><h2>Informes por sector</h2><p>Cada área tiene su lectura propia. Facu recibe las recomendaciones y las eleva a Dirección.</p></div></div>
     <section class="cards">${SECTOR_ORDER.map(renderSectorCard).join("")}</section>
     <section class="activity-grid"><article class="panel activity-list"><h3>Qué está haciendo el equipo</h3>${renderActivity(states)}</article><article class="panel priority-list"><h3>Prioridades para Dirección</h3>${p.map((x,i)=>`<div class="priority-item"><div class="priority-num">${i+1}</div><div><b>Recomendación</b><p>${esc(x)}</p></div></div>`).join("")||`<p style="color:var(--muted);font-size:11px">Sin prioridades críticas en este momento.</p>`}</article></section>

@@ -1,26 +1,25 @@
-# SebasWeb Studios FINAL
+# SebasWeb Studios FINAL - sin carpeta assets
 
-Versión base definitiva del centro de operaciones.
+Esta variante existe para subir desde GitHub móvil sin crear carpetas.
 
-## Archivos
+Subí TODOS los archivos directamente a la raíz del repositorio. No hay carpeta `assets`.
+
+Incluye:
 - index.html
-- styles.css
 - app.js
+- styles.css
 - studio.js
 - vercel.json
-- assets/
+- studio-map.png
+- avatar-sebas.png
+- avatar-facu.png
+- avatar-chevy.png
+- avatar-vera.png
+- avatar-nora.png
+- avatar-luca.png
+- avatar-iris.png
+- avatar-echo.png
+- avatar-atlas.png
+- avatar-luz.png
 
-## Vercel
-Agregar como variable de entorno:
-
-WINDSOR_API_KEY
-
-Opcionales para Spotify:
-
-SPOTIFY_CLIENT_ID
-SPOTIFY_CLIENT_SECRET
-SPOTIFY_ARTIST_ID
-
-Después de modificar variables, hacer un redeploy.
-
-La ruta `/api/studio` se enruta a `studio.js` mediante `vercel.json`.
+Para datos reales de Windsor, Vercel necesita la variable de entorno `WINDSOR_API_KEY`.
