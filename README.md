@@ -1,28 +1,27 @@
-# SebasWeb Studios — Vercel
+# SebasWeb Studios V2
 
-Una oficina virtual para mirar YouTube + TikTok desde un solo lugar.
+Oficina virtual conectada a Windsor.ai para seguir YouTube, dos cuentas de TikTok, Instagram, Facebook y proyectos web.
 
-## Incluye
-- 5 agentes visuales: Milo, Vera, Nora, Atlas y Luz.
-- 4 agentes activos y Publishing Desk en espera hasta conectar Metricool.
-- Cada agente es clickeable y abre métricas + tarea + informe.
-- Datos reales de YouTube y TikTok vía Windsor.ai.
-- Refresco automático cada 2 minutos.
-- Sin frameworks ni dependencias: no hay npm install ni build.
-- Doble fallback: si Windsor o la función fallan, la interfaz conserva una snapshot segura.
+## V2
+- Fondo universo sutil y animado.
+- Agentes ilustrados con rasgos humanos, accesorios y estilos individuales.
+- Dos escritorios TikTok separados: SebasWit y SERIES NEXUS IA.
+- Instagram Nexus conectado como oficina propia.
+- Panel de conexiones con Facebook y Google Analytics.
+- Drawer clickeable por agente con métricas, tarea e informe.
+- API tolerante a fallos: una fuente caída no derriba toda la oficina.
+- Snapshot de seguridad si falta Windsor o una consulta no responde.
 - Responsive para celular y escritorio.
 
-## Cómo subirlo a Vercel
-1. Crear un proyecto nuevo en Vercel y subir/importar esta carpeta (lo más cómodo es GitHub).
-2. Framework Preset: **Other** / sin framework.
-3. No hace falta Build Command.
-4. En **Settings > Environment Variables** crear `WINDSOR_API_KEY` con tu API key de Windsor.ai.
-5. Redeploy.
+## Vercel
+No usa frameworks ni build. Vercel sirve los archivos estáticos y `api/studio.js` como función serverless.
 
-Al principio puede mostrar **SNAPSHOT SEGURO**. Cuando Vercel tenga `WINDSOR_API_KEY`, el cartel cambia automáticamente a **DATOS EN VIVO** si Windsor responde correctamente.
+### Variable necesaria
+En Vercel > Settings > Environment Variables:
 
-## Seguridad
-La API key solo se usa en `api/studio.js`, que corre del lado servidor en Vercel. El navegador nunca recibe la clave.
+`WINDSOR_API_KEY=<tu API key de Windsor.ai>`
 
-## Próxima etapa
-La oficina `Publishing Desk` ya está preparada visualmente para incorporar Metricool: calendario, borradores, aprobaciones y publicaciones programadas.
+No pongas la API key dentro de ningún archivo del repositorio.
+
+## Datos
+La interfaz consulta `/api/studio` cada 2 minutos. La función consulta Windsor.ai y devuelve el último dato disponible. Algunas APIs de redes sociales pueden tener demora propia.
