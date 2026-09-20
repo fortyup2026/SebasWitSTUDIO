@@ -1,21 +1,16 @@
-# SebasWeb Studios V4
+# SebasWeb Studios V5
 
-Versión con salas top-down en tarjetas, agentes ilustrados, Centro Facu, informes por sector y movimiento ocasional entre trabajo, reunión, comedor y baño.
+Versión móvil y escritorio con tarjetas de oficina top-down, personajes humanos ilustrados, Facu como centro de notificaciones, informes por sector y NPCs con pausas ocasionales.
 
-## Archivos
-
-- `index.html`
-- `styles.css`
-- `app.js`
-- `vercel.json`
-- `api/studio.js`
+## Importante
+Esta versión deja `studio.js` en la raíz a propósito. `vercel.json` lo convierte en una función Node y enruta `/api/studio` hacia ese archivo. Así no necesitás crear una carpeta `api` en GitHub.
 
 ## Vercel
+Agregá la variable privada `WINDSOR_API_KEY` en el proyecto. Sin ella, el sitio funciona en modo seguro con la última snapshot.
 
-Cargar como proyecto estático con Functions. La función principal está en `api/studio.js`.
-
-Para datos en vivo desde Windsor, agregar en Vercel:
-
-`WINDSOR_API_KEY`
-
-Si no está disponible o falla Windsor, la interfaz usa datos seguros de respaldo para no romperse.
+## Archivos
+- index.html
+- styles.css
+- app.js
+- studio.js
+- vercel.json
