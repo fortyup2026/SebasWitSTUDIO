@@ -1,112 +1,232 @@
-const FALLBACK={
- source:"safe",updatedAt:new Date().toISOString(),
- youtube:{subscribers:2680,totalViews:126321,videos:77,periodViews:119,periodLikes:3,topVideo:"LA BRUJA 🔮 Lunes 21 de Septiembre",topVideoViews:85,topRetention:111.23},
- tiktok:[{name:"SebasWit",followers:1108,totalLikes:17580,videos:21,periodViews:63,periodLikes:5},{name:"SERIES NEXUS IA",followers:25,totalLikes:206,videos:10,periodViews:1,periodLikes:0}],
- instagram:{name:"nexus.series.ia",followers:3,media:2,engagement:0},facebook:{name:"Un montón de historias.",fans:14353},
- spotify:{status:"pending",artist:"SebasWit",followers:0,popularity:0,albums:0}
+const SAFE_DATA = {
+  source: "safe",
+  updatedAt: new Date().toISOString(),
+  sectors: {
+    youtube: { title:"YouTube Lab", agent:"Chevy", metrics:{ subscribers:2680,totalViews:126321,videos:77,periodViews:119,periodLikes:3,periodComments:1,periodShares:2,topVideo:"LA BRUJA 🔮 Lunes 21 de Septiembre",topVideoViews:85,topRetention:111.2 } },
+    tiktokMain: { title:"TikTok SebasWit", agent:"Nora", metrics:{ followers:1108,totalLikes:17580,videos:21,periodViews:63,periodLikes:5,periodComments:0,periodShares:0,profileViews:1 } },
+    tiktokDual: { title:"TikTok DUAL / Nexus", agent:"Luca", metrics:{ followers:25,totalLikes:206,videos:10,periodViews:1,periodLikes:0,periodComments:0,periodShares:0,profileViews:0 } },
+    instagram: { title:"Instagram Nexus", agent:"Iris", metrics:{ account:"nexus.series.ia",followers:3,mediaCount:2,reach:0,likes:0,comments:0,shares:0,engaged:0 } },
+    spotify: { title:"Spotify", agent:"Echo", connected:false, metrics:{ artist:"SebasWit",followers:null,popularity:null,releases:null } },
+    strategy: { title:"Sala de Estrategia", agent:"Atlas", metrics:{} },
+    publishing: { title:"Publishing", agent:"Luz", metrics:{} }
+  }
 };
 
-const SECTORS={
- direction:{title:"Dirección",subtitle:"Sebas + Facu",accent:"#d45b54",icon:"D"},
- youtube:{title:"YouTube Lab",subtitle:"Analytics + contenido",accent:"#ef6376",icon:"▶"},
- tiktokMain:{title:"TikTok SebasWit",subtitle:"Música + clips",accent:"#43d7cf",icon:"♪"},
- tiktokDual:{title:"TikTok DUAL / Nexus",subtitle:"Universo DUAL",accent:"#8378ff",icon:"N"},
- instagram:{title:"Instagram Nexus",subtitle:"Vitrina visual",accent:"#ec7aad",icon:"◎"},
- spotify:{title:"Spotify",subtitle:"Música + catálogo",accent:"#5bcf7f",icon:"♫"},
- strategy:{title:"Estrategia",subtitle:"Cruce de plataformas",accent:"#6ca7ff",icon:"✦"},
- publishing:{title:"Publishing",subtitle:"Calendario + aprobaciones",accent:"#e0af54",icon:"↗"}
+const PEOPLE = {
+  sebas:{name:"Sebas",role:"Director General",home:"sebas",avatar:"/assets/avatar-sebas.png"},
+  facu:{name:"Facu",role:"Coordinación y Notificaciones",home:"facu",avatar:"/assets/avatar-facu.png"},
+  chevy:{name:"Chevy",role:"YouTube Analytics",home:"youtube",avatar:"/assets/avatar-chevy.png"},
+  vera:{name:"Vera",role:"YouTube Contenido",home:"youtube",avatar:"/assets/avatar-vera.png"},
+  nora:{name:"Nora",role:"TikTok SebasWit",home:"tiktokMain",avatar:"/assets/avatar-nora.png"},
+  luca:{name:"Luca",role:"TikTok DUAL / Nexus",home:"tiktokDual",avatar:"/assets/avatar-luca.png"},
+  iris:{name:"Iris",role:"Instagram",home:"instagram",avatar:"/assets/avatar-iris.png"},
+  echo:{name:"Echo",role:"Spotify",home:"spotify",avatar:"/assets/avatar-echo.png"},
+  atlas:{name:"Atlas",role:"Estrategia",home:"strategy",avatar:"/assets/avatar-atlas.png"},
+  luz:{name:"Luz",role:"Publishing",home:"publishing",avatar:"/assets/avatar-luz.png"}
 };
 
-const PEOPLE={
- sebas:{name:"Sebas",role:"Director general",shirt:"#7566e8",skin:"#e9b992",hair:"#2b2634",accessory:"glasses",home:"direction",homePos:[300,135]},
- facu:{name:"Facu",role:"Coordinación",shirt:"#39c9bf",skin:"#e8b58d",hair:"#292c33",accessory:"",home:"direction",homePos:[500,145]},
- milo:{name:"Milo",role:"YouTube analytics",shirt:"#e76871",skin:"#e9b992",hair:"#33283c",accessory:"headphones",home:"youtube",homePos:[270,360]},
- vera:{name:"Vera",role:"YouTube contenido",shirt:"#eea35c",skin:"#edbd99",hair:"#502f24",accessory:"glasses",home:"youtube",homePos:[420,365]},
- nora:{name:"Nora",role:"TikTok SebasWit",shirt:"#4ab9df",skin:"#efc3a1",hair:"#28233a",accessory:"cap",home:"tiktokMain",homePos:[665,356]},
- kai:{name:"Kai",role:"TikTok DUAL",shirt:"#786de4",skin:"#e9b78f",hair:"#282638",accessory:"",home:"tiktokDual",homePos:[865,360]},
- iris:{name:"Iris",role:"Instagram",shirt:"#df72a3",skin:"#edbd9b",hair:"#45263d",accessory:"glasses",home:"instagram",homePos:[965,585]},
- echo:{name:"Echo",role:"Spotify",shirt:"#5dc77a",skin:"#e8b488",hair:"#273538",accessory:"headphones",home:"spotify",homePos:[735,588]},
- atlas:{name:"Atlas",role:"Estrategia",shirt:"#5d96df",skin:"#e9b58e",hair:"#2e3446",accessory:"glasses",home:"strategy",homePos:[420,590]},
- luz:{name:"Luz",role:"Publishing",shirt:"#cf9f46",skin:"#e9b88f",hair:"#3a3228",accessory:"",home:"publishing",homePos:[210,590]}
+const LOCATIONS = {
+  sebas:{x:22.5,y:18.5,label:"Dirección"}, facu:{x:50,y:18,label:"Coordinación"}, youtube:{x:75,y:18.5,label:"YouTube Lab"},
+  tiktokMain:{x:15.5,y:43,label:"TikTok SebasWit"}, tiktokDual:{x:34.5,y:43,label:"TikTok DUAL"}, instagram:{x:48.8,y:43,label:"Instagram"},
+  spotify:{x:61,y:43,label:"Spotify"}, strategy:{x:75,y:43,label:"Estrategia"}, publishing:{x:88.5,y:43,label:"Publishing"},
+  meeting:{x:23,y:67,label:"Sala de reuniones"}, cafeteria:{x:52,y:67,label:"Comedor"}, restroom:{x:82,y:67,label:"Baño"}, entrance:{x:50,y:87,label:"Entrada"}
 };
 
-const LOCATIONS={meeting:[[520,507],[560,530],[600,510],[555,480]],cafe:[[1015,390],[1055,410],[995,425]],restroom:[[1110,565],[1140,590]],facu:[[500,145]],sebas:[[300,135]]};
-let DATA=null;let agents={};let motionTimer=null;let refreshTimer=null;
-const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s)];
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-const fmt=n=>Number(n||0).toLocaleString("es-AR");
-function toast(t){const old=$(".toast");if(old)old.remove();const e=document.createElement("div");e.className="toast";e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),2400)}
-function notifications(){try{const raw=JSON.parse(localStorage.getItem("sebasweb_v6_notes")||"[]");const cutoff=Date.now()-10*864e5;return raw.filter(n=>new Date(n.date).getTime()>=cutoff)}catch{return[]}}
-function saveNotes(n){localStorage.setItem("sebasweb_v6_notes",JSON.stringify(n))}
-function mergeNotes(server=[]){const old=notifications();const map=new Map(old.map(n=>[n.id,n]));for(const n of server){if(!map.has(n.id))map.set(n.id,{...n,read:false})}const all=[...map.values()].sort((a,b)=>new Date(b.date)-new Date(a.date));saveNotes(all);return all}
+const SECTOR_ORDER = ["youtube","tiktokMain","tiktokDual","instagram","spotify","strategy","publishing"];
+let data = structuredClone(SAFE_DATA);
+let notifications = [];
+let previousSnapshot = null;
 
-function sectorData(key){
- if(key==="youtube")return {metrics:[["Suscriptores",fmt(DATA.youtube.subscribers)],["Vistas canal",fmt(DATA.youtube.totalViews)],["Top video",DATA.youtube.topVideo],["Vistas top",fmt(DATA.youtube.topVideoViews)]],summary:`${DATA.youtube.topVideo} es la señal más fuerte de YouTube.`,recs:["Estudiar el arranque visual de la mejor pieza.","Recortar versiones cortas para Shorts y TikTok."]};
- if(key==="tiktokMain"){const t=DATA.tiktok[0]||{};return {metrics:[["Seguidores",fmt(t.followers)],["Likes",fmt(t.totalLikes)],["Videos",fmt(t.videos)],["Vistas 30d",fmt(t.periodViews)]],summary:"La cuenta principal sostiene la identidad musical de SebasWit.",recs:["Más teasers verticales con gancho inmediato.","Mantener códigos visuales consistentes."]}}
- if(key==="tiktokDual"){const t=DATA.tiktok[1]||{};return {metrics:[["Seguidores",fmt(t.followers)],["Likes",fmt(t.totalLikes)],["Videos",fmt(t.videos)],["Vistas 30d",fmt(t.periodViews)]],summary:"DUAL necesita volumen, pero tiene una identidad temática clara.",recs:["Serializar escenas y personajes.","Construir continuidad entre publicaciones."]}}
- if(key==="instagram")return {metrics:[["Cuenta",DATA.instagram.name],["Seguidores",fmt(DATA.instagram.followers)],["Posts",fmt(DATA.instagram.media)],["Engagement",fmt(DATA.instagram.engagement)]],summary:"Instagram Nexus funciona como vidriera visual del universo.",recs:["Reels cortos y estética reconocible.","Conectar sebaswit.oficial cuando Meta lo permita."]};
- if(key==="spotify")return {metrics:[["Artista",DATA.spotify.artist||"SebasWit"],["Estado",DATA.spotify.status==="live"?"Conectado":"Parcial"],["Seguidores",fmt(DATA.spotify.followers)],["Popularidad",fmt(DATA.spotify.popularity)]],summary:"Spotify tiene sector propio para catálogo y lanzamientos.",recs:["Destacar lanzamientos recientes.","Sumar analítica privada cuando haya una fuente compatible."]};
- if(key==="strategy")return {metrics:[["Foco","YouTube + TikTok"],["Señal",DATA.youtube.topVideo],["Prioridad","alta"],["Agente","Atlas"]],summary:"Atlas cruza los sectores y prepara la recomendación para Facu.",recs:["Usar YouTube como motor de señal.","Mantener DUAL separado de la narrativa musical."]};
- if(key==="publishing")return {metrics:[["Estado","En espera"],["Cola","0"],["Aprobaciones","0"],["Calendario","pendiente"]],summary:"Publishing queda preparado para la capa operativa.",recs:["Centralizar aprobaciones acá cuando conectemos publicación."]};
- return {metrics:[["Rol","Dirección"],["Facu","Coordinación"],["Avisos",String(notifications().length)],["Estado",DATA.source==="live"?"En vivo":"Seguro"]],summary:"Dirección reúne decisiones, avisos y prioridades.",recs:["Revisar Facu antes de elegir qué mover hoy."]};
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n ?? 0).toLocaleString("es-AR");
+const clock = d => d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit"});
+const dateKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+
+function hashString(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return Math.abs(h>>>0)}
+function mins(h,m){return h*60+m}
+function currentMinutes(d){return d.getHours()*60+d.getMinutes()}
+function inWindow(now,start,end){const m=currentMinutes(now);return m>=start&&m<end}
+function dayIndex(now){const d=now.getDay();return d===0?7:d}
+
+const LUNCH = {
+  chevy:[12,0,12,45], nora:[12,0,12,45], vera:[12,45,13,30], iris:[12,45,13,30],
+  facu:[13,0,13,45], luca:[13,30,14,15], echo:[13,30,14,15], sebas:[14,0,14,45], atlas:[14,15,15,0], luz:[14,15,15,0]
+};
+
+function meetingFor(id,now){
+  const m=currentMinutes(now), dow=dayIndex(now);
+  const slots=[
+    {start:mins(10,15),end:mins(10,45),members:["chevy","vera","atlas"],title:"Revisión YouTube"},
+    {start:mins(11,15),end:mins(11,45),members:["nora","luca","atlas"],title:"Revisión TikTok"},
+    {start:mins(16,30),end:mins(17,0),members:["sebas","facu"],title:"Cierre Dirección"}
+  ];
+  const afternoon={
+    1:{members:["chevy","vera","nora","atlas","facu"],title:"Contenido semanal"},
+    2:{members:["luca","iris","atlas","facu"],title:"DUAL / Nexus"},
+    3:{members:["echo","nora","luz","atlas","facu"],title:"Música y lanzamientos"},
+    4:{members:["chevy","nora","luca","iris","atlas","facu"],title:"Estrategia cruzada"},
+    5:{members:["chevy","vera","nora","luca","iris","echo","atlas","luz","facu"],title:"Editorial semanal"}
+  }[dow];
+  if(afternoon) slots.push({start:mins(15,15),end:mins(16,0),...afternoon});
+  return slots.find(s=>s.members.includes(id)&&m>=s.start&&m<s.end)||null;
 }
 
-function deskSvg(x,y,accent="#56d9cf",s=1){return `<g transform="translate(${x} ${y}) scale(${s})"><polygon class="desk-top" points="0,0 74,0 92,15 18,15"/><polygon class="desk-front" points="18,15 92,15 92,45 18,45"/><polygon class="desk-side" points="0,0 18,15 18,45 0,30"/><rect class="screen-front" x="28" y="-18" width="38" height="24" rx="3"/><rect x="33" y="-13" width="28" height="3" rx="2" fill="${accent}"/><rect x="33" y="-7" width="19" height="2" rx="1" fill="#8090a6"/><rect x="33" y="-2" width="23" height="2" rx="1" fill="#8090a6"/><ellipse class="chair-seat" cx="57" cy="62" rx="18" ry="10"/><rect class="chair-back" x="43" y="45" width="28" height="22" rx="9"/></g>`}
-function plantSvg(x,y,s=1){return `<g transform="translate(${x} ${y}) scale(${s})"><path class="plant-pot" d="M0 18h24l-4 24H4z"/><ellipse class="plant-leaf" cx="12" cy="12" rx="11" ry="17"/><ellipse class="plant-leaf" cx="1" cy="15" rx="8" ry="13" transform="rotate(-35 1 15)"/><ellipse class="plant-leaf" cx="23" cy="15" rx="8" ry="13" transform="rotate(35 23 15)"/></g>`}
-function sofaSvg(x,y){return `<g transform="translate(${x} ${y})"><rect class="lounge-sofa" width="92" height="38" rx="10"/><rect x="8" y="-14" width="76" height="24" rx="10" fill="#d2b99e"/></g>`}
-function roomBase(id,title,sub,x,y,w,h,color){return `<g class="room-group" data-room-click="${id}"><polygon class="room-floor-svg" fill="${color}" points="${x},${y+46} ${x+w},${y} ${x+w},${y+h-44} ${x},${y+h}"/><polygon class="wall-top" fill="rgba(255,255,255,.08)" points="${x},${y+46} ${x+w},${y} ${x+w},${y-16} ${x},${y+30}"/><polygon class="wall-side" fill="rgba(0,0,0,.16)" points="${x+w},${y} ${x+w+12},${y+12} ${x+w+12},${y+h-32} ${x+w},${y+h-44}"/><text class="room-title-svg" x="${x+18}" y="${y+73}">${esc(title)}</text><text class="room-sub-svg" x="${x+18}" y="${y+91}">${esc(sub)}</text></g>`}
-function personSvg(id,p){return `<g class="agent-svg" id="agent-${id}" data-agent-click="${id}" style="--shirt:${p.shirt};--skin:${p.skin};--hair:${p.hair}"><ellipse class="agent-shadow" cx="0" cy="35" rx="17" ry="6"/><line class="leg-svg" x1="-6" y1="13" x2="-7" y2="31"/><line class="leg-svg" x1="6" y1="13" x2="7" y2="31"/><ellipse class="shoe-svg" cx="-8" cy="34" rx="7" ry="4"/><ellipse class="shoe-svg" cx="8" cy="34" rx="7" ry="4"/><path class="shirt-svg" d="M-15,-6 Q0,-14 15,-6 L12,16 Q0,22 -12,16Z"/><line class="arm-svg" x1="-12" y1="0" x2="-19" y2="13"/><line class="arm-svg" x1="12" y1="0" x2="19" y2="13"/><circle class="face-skin" cx="0" cy="-25" r="16"/><path class="hair-svg" d="M-15,-29 Q-10,-45 4,-42 Q16,-40 16,-27 Q8,-33 0,-32 Q-8,-34 -15,-29Z"/><circle class="eye-svg" cx="-5" cy="-25" r="1.6"/><circle class="eye-svg" cx="5" cy="-25" r="1.6"/><path class="mouth-svg" d="M-4,-18 Q0,-15 4,-18"/>${p.accessory==="glasses"?'<g class="glasses-svg"><rect x="-11" y="-30" width="9" height="7" rx="3"/><rect x="2" y="-30" width="9" height="7" rx="3"/><path d="M-2,-27h4"/></g>':""}${p.accessory==="headphones"?'<path class="headphones-svg" d="M-14,-30 Q0,-46 14,-30 M-15,-30v10 M15,-30v10"/>':""}${p.accessory==="cap"?'<path class="cap-svg" d="M-15,-33 Q0,-46 15,-34 L14,-29 L-13,-29Z M12,-31h12v4H12z"/>':""}<circle class="agent-status-dot" cx="14" cy="-43" r="5" fill="#68d798"/><text class="agent-label" x="0" y="54" text-anchor="middle">${esc(p.name)}</text><g class="speech" transform="translate(-35 -78)"><rect class="bubble-svg" x="0" y="0" width="70" height="20" rx="9"/><text class="bubble-text" x="35" y="13" text-anchor="middle">${esc(p.role)}</text></g></g>`}
-
-function renderOfficeSvg(){
- const svg=`<svg class="office-svg" viewBox="0 0 1200 760" role="img" aria-label="SebasWeb Studios, oficina virtual isométrica">
- <defs><linearGradient id="floorA" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#243149"/><stop offset="1" stop-color="#172238"/></linearGradient><linearGradient id="floorB" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2a3049"/><stop offset="1" stop-color="#171f33"/></linearGradient><linearGradient id="floorD" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#592c31"/><stop offset="1" stop-color="#271a26"/></linearGradient></defs>
- ${roomBase("direction","Dirección","SEBAS + FACU",115,60,430,205,"url(#floorD)")}
- ${roomBase("youtube","YouTube","ANALYTICS + CONTENIDO",100,285,360,205,"url(#floorA)")}
- ${roomBase("tiktokMain","TikTok SebasWit","MÚSICA + CLIPS",480,285,250,205,"url(#floorB)")}
- ${roomBase("tiktokDual","TikTok DUAL","UNIVERSO NEXUS",750,285,245,205,"url(#floorB)")}
- ${roomBase("strategy","Estrategia","CRUCE DE DATOS",290,510,300,175,"url(#floorA)")}
- ${roomBase("spotify","Spotify","MÚSICA + CATÁLOGO",610,510,235,175,"url(#floorA)")}
- ${roomBase("instagram","Instagram","VITRINA VISUAL",865,510,220,175,"url(#floorA)")}
- ${roomBase("publishing","Publishing","CALENDARIO",70,510,200,175,"url(#floorA)")}
- <g data-room-click="meeting"><polygon class="room-floor-svg" fill="#202b3f" points="490,440 650,420 650,505 490,525"/><text class="room-sub-svg" x="505" y="463">SALA DE REUNIÓN</text><ellipse class="meeting-table" cx="563" cy="486" rx="56" ry="21"/></g>
- <g data-room-click="cafe"><polygon class="room-floor-svg" fill="#283039" points="985,305 1160,285 1160,452 985,472"/><text class="room-sub-svg" x="1000" y="329">COMEDOR / CAFÉ</text>${sofaSvg(1010,365)}<rect class="food-counter" x="1095" y="330" width="42" height="74" rx="5"/>${plantSvg(1128,412,.75)}</g>
- <g data-room-click="restroom"><polygon class="room-floor-svg" fill="#24323c" points="1080,510 1180,496 1180,680 1080,694"/><text class="room-sub-svg" x="1092" y="534">BAÑO</text><rect class="wc-svg" x="1100" y="565" width="28" height="42" rx="12"/><rect class="wc-svg" x="1138" y="565" width="28" height="42" rx="12"/></g>
- ${deskSvg(235,145,"#72d6ce",1.08)}${deskSvg(435,150,"#72d6ce",1.0)}${plantSvg(500,195,.85)}
- ${deskSvg(195,375,"#ef6376",.9)}${deskSvg(345,382,"#ef6376",.9)}${plantSvg(405,438,.72)}
- ${deskSvg(600,375,"#43d7cf",.9)}${plantSvg(690,438,.7)}
- ${deskSvg(830,380,"#8378ff",.9)}${plantSvg(935,438,.7)}
- ${deskSvg(140,590,"#e0af54",.84)}${deskSvg(365,588,"#6ca7ff",.84)}${deskSvg(680,590,"#5bcf7f",.84)}${deskSvg(925,590,"#ec7aad",.84)}
- ${Object.entries(PEOPLE).map(([id,p])=>personSvg(id,p)).join("")}
- </svg>`;
- return svg;
+function bathroomWindow(id,now){
+  if(["sebas","facu"].includes(id)) return null;
+  const seed=hashString(`${dateKey(now)}-${id}`);
+  const base=mins(10,0)+(seed%(mins(7,0))); // 10:00..16:59
+  const start=base-(base%5), end=start+7;
+  const m=currentMinutes(now);
+  if(m>=start&&m<end) return {start,end};
+  return null;
 }
 
-function mobileCards(){return ["direction","youtube","tiktokMain","tiktokDual","instagram","spotify","strategy","publishing"].map(key=>{const cfg=SECTORS[key],d=sectorData(key);return `<article class="sector-card" style="--accent:${cfg.accent}"><div class="sector-head"><div class="sector-title"><div class="sector-icon">${cfg.icon}</div><div><h3>${cfg.title}</h3><p>${cfg.subtitle}</p></div></div><button class="secondary" data-report="${key}">Informe</button></div><div class="sector-meta">${d.metrics.slice(0,4).map(m=>`<div class="meta"><span>${esc(m[0])}</span><strong>${esc(m[1])}</strong></div>`).join("")}</div></article>`}).join("")}
-
-function render(){const notes=notifications(),unread=notes.filter(n=>!n.read).length;document.getElementById("app").innerHTML=`<div class="shell"><header class="topbar"><div class="brand"><div class="brand-mark">SW</div><div><h1>SebasWeb Studios</h1><p>Empresa virtual · redes · música · estrategia</p></div></div><div class="top-actions"><div class="chip"><small>Modo</small><b>${DATA.source==="live"?"EN VIVO":"SEGURO"}</b></div><button class="btn" id="refreshBtn">↻ Actualizar</button><button class="btn notify-btn" id="facuBtn">🔔 Facu ${unread?`<span class="count">${unread}</span>`:""}</button></div></header>
- <section class="hero"><article class="hero-card"><h2>Dirección General</h2><p>La oficina funciona como una mini empresa: cada sector analiza su parte, Atlas cruza señales y Facu concentra los avisos para que vos decidas.</p><div class="hero-stats"><div class="hero-stat"><small>YOUTUBE</small><strong>${fmt(DATA.youtube.subscribers)}</strong></div><div class="hero-stat"><small>TIKTOK</small><strong>${fmt((DATA.tiktok[0]||{}).followers)}</strong></div><div class="hero-stat"><small>AVISOS</small><strong>${notes.length}</strong></div></div></article><article class="hero-card facu-card"><div class="facu-row"><div class="facu-avatar">F</div><div><h3>Facu</h3><p>Coordinación, notificaciones e informe general.</p></div></div><div class="facu-actions"><button class="primary" id="facuOpen">Abrir centro</button><button class="secondary" id="facuAsk">Consultar</button></div></article></section>
- <div class="section-head"><div><h2>La empresa</h2><p>Vista isométrica. Tocá un sector o un integrante para abrir su informe.</p></div><span>Los agentes trabajan casi siempre en su puesto y se mueven solo de forma ocasional.</span></div>
- <section class="office-stage"><div class="office-toolbar"><strong>SEBASWEB STUDIOS · PLANTA OPERATIVA</strong><span>Dirección · Producción · Estrategia · Social · Música</span></div><div class="svg-wrap">${renderOfficeSvg()}</div></section>
- <section class="mobile-sector-grid">${mobileCards()}</section>
- <section class="activity-strip"><article class="activity-card"><small>FACU</small><b>${unread?`${unread} aviso${unread>1?"s":""} nuevo${unread>1?"s":""}`:"Sin avisos nuevos"}</b><p>Centraliza novedades de todos los sectores.</p></article><article class="activity-card"><small>ATLAS</small><b>Comparando plataformas</b><p>Busca qué contenido conviene reutilizar.</p></article><article class="activity-card"><small>EQUIPO</small><b>${Object.keys(PEOPLE).length} personas</b><p>La mayoría permanece trabajando en su área.</p></article></section>
- </div><div id="drawerRoot"></div>`;
- $("#refreshBtn").onclick=()=>load(true);$("#facuBtn").onclick=openFacu;$("#facuOpen").onclick=openFacu;$("#facuAsk").onclick=openFacu;
- $$('[data-room-click]').forEach(el=>el.addEventListener('click',()=>{const k=el.dataset.roomClick;if(k==="meeting"||k==="cafe"||k==="restroom")toast(k==="meeting"?"Sala de reunión":"Área común");else openReport(k)}));
- $$('[data-agent-click]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();openAgent(el.dataset.agentClick)}));$$('[data-report]').forEach(el=>el.onclick=()=>openReport(el.dataset.report));
- applyAgentPositions();
+function presence(id,now=new Date()){
+  const m=currentMinutes(now), dow=dayIndex(now);
+  if(dow>5 || m<mins(9,0) || m>=mins(18,15)) return {state:"offline",location:PEOPLE[id].home,label:"Fuera de horario",until:null};
+  const meeting=meetingFor(id,now);
+  if(meeting) return {state:"meeting",location:"meeting",label:meeting.title,until:meeting.end};
+  const l=LUNCH[id];
+  if(l && inWindow(now,mins(l[0],l[1]),mins(l[2],l[3]))) return {state:"lunch",location:"cafeteria",label:"Almuerzo",until:mins(l[2],l[3])};
+  const bath=bathroomWindow(id,now);
+  if(bath) return {state:"restroom",location:"restroom",label:"Pausa breve",until:bath.end};
+  return {state:"working",location:PEOPLE[id].home,label:"Trabajando",until:null};
 }
 
-function initAgents(){for(const [id,p] of Object.entries(PEOPLE))agents[id]={id,x:p.homePos[0],y:p.homePos[1],status:"working",home:[...p.homePos],room:p.home,timer:null}}
-function applyAgentPositions(){for(const [id,a] of Object.entries(agents)){const el=document.getElementById(`agent-${id}`);if(!el)continue;el.style.transform=`translate(${a.x}px, ${a.y}px) scale(${id==="sebas"||id==="facu"?1.02:.9})`;const dot=el.querySelector('.agent-status-dot');if(dot)dot.setAttribute('fill',a.status==='working'?'#68d798':a.status==='meeting'?'#76a9ff':a.status==='cafe'?'#f1bb62':'#d68cf1')}}
-function sendAgent(id,type){const a=agents[id];if(!a)return;let list=LOCATIONS[type]||[];if(!list.length)return;const pos=list[Math.floor(Math.random()*list.length)];a.x=pos[0];a.y=pos[1];a.status=type;applyAgentPositions();clearTimeout(a.timer);a.timer=setTimeout(()=>{a.x=a.home[0];a.y=a.home[1];a.status="working";applyAgentPositions()},type==="restroom"?7000:12000+Math.random()*7000)}
-function scheduleMotion(){if(motionTimer)clearInterval(motionTimer);motionTimer=setInterval(()=>{if(Math.random()>.55)return;const pool=["milo","vera","nora","kai","iris","echo","atlas","luz"];const id=pool[Math.floor(Math.random()*pool.length)];if(agents[id].status!=="working")return;const r=Math.random();sendAgent(id,r<.48?"meeting":r<.82?"cafe":"restroom")},12000)}
+function untilText(minute){if(minute==null)return "";const h=Math.floor(minute/60),m=minute%60;return `hasta ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`}
 
-function openAgent(id){const p=PEOPLE[id],sector=p.home==="direction"?"direction":p.home,d=sectorData(sector);openDrawer(`<button class="close" id="closeDrawer">×</button><h3>${esc(p.name)}</h3><p class="sub">${esc(p.role)} · Estado: ${esc(agents[id]?.status||"working")}</p><div class="report-box"><h4>Qué está haciendo</h4><p>${agents[id]?.status==="working"?"Está trabajando en su sector y revisando sus métricas.":agents[id]?.status==="meeting"?"Está en una reunión de coordinación.":agents[id]?.status==="cafe"?"Está haciendo una pausa breve en el comedor.":"Está fuera de su puesto unos minutos."}</p></div><div class="report-grid">${d.metrics.slice(0,4).map(m=>`<div class="report-metric"><span>${esc(m[0])}</span><strong>${esc(m[1])}</strong></div>`).join("")}</div><div class="report-box"><h4>Análisis</h4><p>${esc(d.summary)}</p></div>`)}
-function openReport(key){if(key==="direction"){openFacu();return}const d=sectorData(key),cfg=SECTORS[key]||{title:key};openDrawer(`<button class="close" id="closeDrawer">×</button><h3>${esc(cfg.title)}</h3><p class="sub">${esc(cfg.subtitle||"")} · Informe del sector</p><div class="report-grid">${d.metrics.map(m=>`<div class="report-metric"><span>${esc(m[0])}</span><strong>${esc(m[1])}</strong></div>`).join("")}</div><div class="report-box"><h4>Lectura del sector</h4><p>${esc(d.summary)}</p></div><div class="report-box"><h4>Recomendaciones</h4><ul>${d.recs.map(r=>`<li>${esc(r)}</li>`).join("")}</ul></div>`)}
-function openFacu(){const notes=notifications();openDrawer(`<button class="close" id="closeDrawer">×</button><h3>Centro Facu</h3><p class="sub">Coordinación general, notificaciones y consulta rápida.</p><div class="report-box"><h4>Últimas notificaciones</h4>${notes.length?notes.map(n=>`<div class="note"><small>${esc(n.sector)} · ${new Date(n.date).toLocaleDateString("es-AR")}${n.read?" · leída":" · nueva"}</small><b>${esc(n.title)}</b><p>${esc(n.message)}</p></div>`).join(""):'<p>Sin notificaciones.</p>'}</div><div class="report-box"><h4>Consultar a Facu</h4><div class="ask"><input id="facuQuestion" placeholder="¿Qué pasa con YouTube?"/><button class="primary" id="askFacu">Preguntar</button></div><div id="facuAnswer" class="answer" style="display:none"></div></div>`);saveNotes(notes.map(n=>({...n,read:true})));$("#askFacu").onclick=answerFacu;$("#facuQuestion").addEventListener("keydown",e=>{if(e.key==="Enter")answerFacu()})}
-function answerFacu(){const q=($("#facuQuestion")?.value||"").toLowerCase().trim();let a="Estoy mirando toda la empresa. Hoy mantendría el foco en YouTube, reforzaría TikTok SebasWit y dejaría DUAL crecer con una narrativa propia.";if(q.includes("youtube")){const d=sectorData("youtube");a=`YouTube tiene ${fmt(DATA.youtube.subscribers)} suscriptores. La señal más fuerte es “${DATA.youtube.topVideo}”. ${d.recs[0]}`;}else if(q.includes("dual")){const t=DATA.tiktok[1]||{};a=`DUAL tiene ${fmt(t.followers)} seguidores y ${fmt(t.totalLikes)} likes. Conviene aumentar continuidad entre publicaciones.`}else if(q.includes("spotify")){a=`Spotify está ${DATA.spotify.status==="live"?"conectado":"en modo parcial"}. Yo priorizaría que la oficina muestre lanzamientos y catálogo, y luego sumar analytics privados.`}else if(q.includes("hoy")||q.includes("recom")){a="Hoy haría tres movimientos: usar LA BRUJA como referencia de apertura, sacar una pieza corta musical para TikTok y mantener DUAL con contenido separado y serializado."}else if(q.includes("resumen")){a=`Resumen: YouTube ${fmt(DATA.youtube.subscribers)} suscriptores; TikTok SebasWit ${fmt((DATA.tiktok[0]||{}).followers)} seguidores; DUAL ${fmt((DATA.tiktok[1]||{}).followers)}; Instagram ${fmt(DATA.instagram.followers)}.`}const el=$("#facuAnswer");el.style.display="block";el.textContent=a}
-function openDrawer(html){$("#drawerRoot").innerHTML=`<div class="drawer-backdrop" id="backdrop"><aside class="drawer">${html}</aside></div>`;$("#closeDrawer").onclick=closeDrawer;$("#backdrop").onclick=e=>{if(e.target.id==="backdrop")closeDrawer()}}
+function loadNotes(){
+  try{const arr=JSON.parse(localStorage.getItem("sw_final_notifications")||"[]");const cutoff=Date.now()-10*86400000;return arr.filter(n=>new Date(n.createdAt).getTime()>=cutoff)}catch{return []}
+}
+function saveNotes(){localStorage.setItem("sw_final_notifications",JSON.stringify(notifications))}
+function addNote(note){
+  if(notifications.some(n=>n.id===note.id)) return;
+  notifications.unshift({...note,createdAt:note.createdAt||new Date().toISOString(),read:false});
+  notifications=notifications.filter(n=>new Date(n.createdAt).getTime()>=Date.now()-10*86400000).slice(0,100);saveNotes();
+}
+function noteId(prefix,text){return `${prefix}-${hashString(text)}`}
+
+function sectorAnalysis(key){
+  const s=data.sectors[key]||{}; const m=s.metrics||{};
+  if(key==="youtube"){
+    const strong=(m.topRetention||0)>=70; return {summary:`${fmt(m.subscribers)} suscriptores y ${fmt(m.periodViews)} vistas en la ventana reciente. ${m.topVideo?`La pieza con más movimiento es “${m.topVideo}”.`:""}`,rec: strong?"Conviene reutilizar el arranque y el lenguaje visual de la pieza con mejor retención en un nuevo Short.":"Conviene probar aperturas más rápidas y comparar retención durante los primeros segundos."};
+  }
+  if(key==="tiktokMain") return {summary:`${fmt(m.followers)} seguidores, ${fmt(m.totalLikes)} likes acumulados y ${fmt(m.periodViews)} vistas recientes.`,rec:(m.periodViews||0)<100?"Publicar un clip musical corto con gancho inmediato y medir la respuesta durante 24 horas.":"Replicar el formato de los clips que están sosteniendo el alcance."};
+  if(key==="tiktokDual") return {summary:`${fmt(m.followers)} seguidores y ${fmt(m.periodViews)} vistas recientes en DUAL / Nexus.`,rec:"Mantener una secuencia serial de personajes, escenas y cliffhangers para que el proyecto gane continuidad propia."};
+  if(key==="instagram") return {summary:`Cuenta ${m.account||"Nexus"}. ${fmt(m.followers)} seguidores y ${fmt(m.mediaCount)} piezas registradas.`,rec:"Usar Instagram como vidriera visual y acompañar las publicaciones principales con reels cortos."};
+  if(key==="spotify") return {summary:m.connected?`${m.artist||"SebasWit"}: ${fmt(m.followers)} seguidores en Spotify y ${fmt(m.releases)} lanzamientos recuperados.`:"Spotify está preparado, pero faltan las credenciales de la API para datos directos.",rec:m.connected?"Destacar el lanzamiento más reciente en el resto de las redes.":"Agregar SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET y SPOTIFY_ARTIST_ID en Vercel."};
+  if(key==="strategy") return {summary:"Atlas cruza YouTube, TikTok, Instagram y Spotify para priorizar acciones.",rec:priorities()[0]||"Mantener el ritmo y revisar los datos de cada sector."};
+  if(key==="publishing") return {summary:"Luz concentra lo que está listo para calendarizar y publicar.",rec:"Cuando conectes la capa operativa de publicación, las recomendaciones aprobadas pueden pasar a calendario."};
+  return {summary:"Sector activo.",rec:"Seguir monitoreando."};
+}
+
+function priorities(){
+  const y=data.sectors.youtube.metrics||{}, t=data.sectors.tiktokMain.metrics||{}, d=data.sectors.tiktokDual.metrics||{};
+  const out=[];
+  if((y.topRetention||0)>=70) out.push(`Aprovechar la retención de “${y.topVideo||"la mejor pieza de YouTube"}” y crear una versión corta relacionada.`);
+  if((t.periodViews||0)<100) out.push("Reactivar TikTok SebasWit con un clip musical breve y directo.");
+  if((d.periodViews||0)<25) out.push("DUAL necesita una pieza serial nueva para recuperar continuidad.");
+  if(!data.sectors.spotify.metrics?.connected) out.push("Completar la integración de Spotify para que Echo pueda trabajar con datos directos.");
+  return out.slice(0,4);
+}
+
+function generateNotifications(){
+  const now=new Date(), dk=dateKey(now);
+  for(const key of ["youtube","tiktokMain","tiktokDual","instagram","spotify"]){
+    const a=sectorAnalysis(key); addNote({id:noteId(`${dk}-${key}`,a.rec),sector:key,from:data.sectors[key].agent,title:`Informe de ${data.sectors[key].agent}`,message:a.rec,kind:"recommendation"});
+  }
+  // Meeting conclusions become visible shortly after a scheduled meeting finishes.
+  const m=currentMinutes(now), dow=dayIndex(now);
+  const meetings=[
+    {end:mins(10,45),title:"Revisión YouTube",message:"Chevy, Vera y Atlas cerraron la revisión de YouTube. Facu recibió el resumen del sector."},
+    {end:mins(11,45),title:"Revisión TikTok",message:"Nora, Luca y Atlas terminaron la revisión de TikTok. Facu recibió las recomendaciones."},
+    {end:mins(16,0),title:"Reunión estratégica",message:"La reunión estratégica terminó. Facu consolidó las prioridades para Dirección."},
+    {end:mins(17,0),title:"Cierre Dirección",message:"Facu entregó a Sebas el cierre del día con alertas y recomendaciones pendientes."}
+  ];
+  meetings.forEach(x=>{if(m>=x.end&&m<x.end+30)addNote({id:`${dk}-meeting-${x.end}`,sector:"strategy",from:"Facu",title:x.title,message:x.message,kind:"meeting"})});
+  if(m>=mins(17,0)) addNote({id:`${dk}-daily-summary`,sector:"facu",from:"Facu",title:"Resumen del día",message:priorities().slice(0,2).join(" ")||"No hay alertas importantes para hoy.",kind:"summary"});
+}
+
+function compareSnapshots(prev,cur){
+  if(!prev)return;
+  const paths=[
+    ["youtube","periodViews","Vistas de YouTube"],["tiktokMain","periodViews","Vistas de TikTok SebasWit"],["tiktokDual","periodViews","Vistas de TikTok DUAL"],["instagram","followers","Seguidores de Instagram"]
+  ];
+  paths.forEach(([sector,metric,label])=>{
+    const a=Number(prev?.sectors?.[sector]?.metrics?.[metric]||0),b=Number(cur?.sectors?.[sector]?.metrics?.[metric]||0);
+    if(a>0&&b!==a){const pct=((b-a)/a)*100;if(Math.abs(pct)>=10)addNote({id:noteId(`${dateKey(new Date())}-${sector}-${metric}`,`${a}-${b}`),sector,from:cur.sectors[sector].agent,title:`Cambio en ${label}`,message:`Pasó de ${fmt(a)} a ${fmt(b)} (${pct>0?"+":""}${pct.toFixed(1)}%). Facu lo marcó para revisar.`,kind:"change"})}
+  });
+}
+
+function sectorIcon(key){return ({youtube:"▶",tiktokMain:"♪",tiktokDual:"♪",instagram:"◎",spotify:"●",strategy:"▥",publishing:"▤"})[key]||"•"}
+function sectorShort(key){return ({youtube:"YouTube",tiktokMain:"TikTok",tiktokDual:"DUAL",instagram:"Instagram",spotify:"Spotify",strategy:"Estrategia",publishing:"Publishing"})[key]||key}
+function sectorMetrics(key){
+  const m=data.sectors[key]?.metrics||{};
+  if(key==="youtube")return [["Suscriptores",fmt(m.subscribers)],["Vistas canal",fmt(m.totalViews)],["Vistas recientes",fmt(m.periodViews)],["Top video",m.topVideo||"-"]];
+  if(key==="tiktokMain"||key==="tiktokDual")return [["Seguidores",fmt(m.followers)],["Likes",fmt(m.totalLikes)],["Videos",fmt(m.videos)],["Vistas recientes",fmt(m.periodViews)]];
+  if(key==="instagram")return [["Cuenta",m.account||"-"],["Seguidores",fmt(m.followers)],["Posts",fmt(m.mediaCount)],["Alcance",fmt(m.reach)]];
+  if(key==="spotify")return [["Artista",m.artist||"SebasWit"],["Seguidores",m.connected?fmt(m.followers):"Pendiente"],["Popularidad",m.connected?fmt(m.popularity):"Pendiente"],["Lanzamientos",m.connected?fmt(m.releases):"Pendiente"]];
+  if(key==="strategy")return [["Prioridades",priorities().length],["Sectores",5],["Reuniones hoy",dayIndex(new Date())<=5?3:0],["Estado","Activo"]];
+  return [["Estado","Preparado"],["Cola","Pendiente"],["Aprobaciones","Local"],["Calendario","Próxima etapa"]];
+}
+
+function render(){
+  const now=new Date(); const states=Object.fromEntries(Object.keys(PEOPLE).map(id=>[id,presence(id,now)]));
+  const counts={working:0,meeting:0,lunch:0,restroom:0,offline:0};Object.values(states).forEach(s=>counts[s.state]++);
+  const unread=notifications.filter(n=>!n.read).length;
+  const p=priorities();
+  $("#app").innerHTML=`<div class="shell">
+    <header class="topbar"><div class="brand"><div class="brand-logo">SW</div><div><h1>SebasWeb Studios</h1><p>Dirección · contenido · estrategia · música</p></div></div><div class="top-actions"><div class="chip"><small>${now.toLocaleDateString("es-AR",{weekday:"short",day:"2-digit",month:"short"})}</small><b id="clock">${clock(now)}</b></div><div class="chip"><small>Datos</small><b>${data.source==="live"?"EN VIVO":"SEGURO"}</b></div><button class="btn" id="refresh">↻ Actualizar</button><button class="btn bell" id="bell">🔔 Facu${unread?`<span class="bell-count">${unread}</span>`:""}</button></div></header>
+    <section class="hero"><article class="panel director-panel"><span class="eyebrow">DIRECCIÓN GENERAL</span><h2>Centro de decisiones</h2><p>Los sectores analizan sus datos, Atlas cruza oportunidades y Facu concentra lo que necesita tu atención.</p><div class="kpis"><div class="kpi"><small>TRABAJANDO</small><strong>${counts.working}</strong></div><div class="kpi"><small>EN REUNIÓN</small><strong>${counts.meeting}</strong></div><div class="kpi"><small>ALMUERZO</small><strong>${counts.lunch}</strong></div><div class="kpi"><small>AVISOS NUEVOS</small><strong>${unread}</strong></div></div></article>
+    <article class="panel facu-card"><div><div class="facu-head"><img src="${PEOPLE.facu.avatar}" alt="Facu"><div><h3>Facu</h3><p>Coordinación y Centro de Notificaciones</p></div></div><div class="facu-summary">${unread?`Tenés ${unread} aviso${unread===1?"":"s"} nuevo${unread===1?"":"s"}.`:"No hay avisos nuevos."} ${p[0]||"La operación está estable."}</div></div><div class="facu-actions"><button class="btn primary" id="facuCenter">Abrir centro</button><button class="btn" id="askFacu">Consultar</button></div></article></section>
+    <div class="section-head"><div><h2>La empresa ahora</h2><p>Los NPC siguen horarios reales. Trabajan, almuerzan por turnos, se reúnen cuando corresponde y vuelven a sus puestos.</p></div><div class="live-summary">${clock(now)} · ${counts.working} trabajando · ${counts.meeting} reunión · ${counts.lunch} almuerzo</div></div>
+    <section class="panel map-card"><div class="studio-map" id="studioMap"><img src="/assets/studio-map.png" alt="Mapa de SebasWeb Studios"><div class="map-vignette"></div>${renderHotspots()}${renderNpcs(states)}</div><div class="legend"><span><i style="background:#67d99b"></i>Trabajando</span><span><i style="background:#9c8cff"></i>Reunión</span><span><i style="background:#f6bb68"></i>Almuerzo</span><span><i style="background:#58bdf7"></i>Pausa</span><span><i style="background:#687386"></i>Fuera de horario</span></div></section>
+    <div class="section-head"><div><h2>Informes por sector</h2><p>Cada área tiene su lectura propia. Facu recibe las recomendaciones y las eleva a Dirección.</p></div></div>
+    <section class="cards">${SECTOR_ORDER.map(renderSectorCard).join("")}</section>
+    <section class="activity-grid"><article class="panel activity-list"><h3>Qué está haciendo el equipo</h3>${renderActivity(states)}</article><article class="panel priority-list"><h3>Prioridades para Dirección</h3>${p.map((x,i)=>`<div class="priority-item"><div class="priority-num">${i+1}</div><div><b>Recomendación</b><p>${esc(x)}</p></div></div>`).join("")||`<p style="color:var(--muted);font-size:11px">Sin prioridades críticas en este momento.</p>`}</article></section>
+    <div id="drawerRoot"></div></div>`;
+  wire();
+}
+
+function renderHotspots(){
+  const keys=["sebas","facu","youtube","tiktokMain","tiktokDual","instagram","spotify","strategy","publishing","meeting","cafeteria","restroom"];
+  return keys.map(k=>{const l=LOCATIONS[k];const reportKey=(["youtube","tiktokMain","tiktokDual","instagram","spotify","strategy","publishing"].includes(k)?k:null);return `<button class="hotspot" style="left:${l.x}%;top:${l.y}%" data-location="${k}" ${reportKey?`data-report="${reportKey}"`:k==="facu"?`data-facu="1"`:k==="sebas"?`data-direction="1"`:""}><span>${esc(l.label)}</span></button>`}).join("")
+}
+function renderNpcs(states){
+  return Object.entries(states).map(([id,s])=>{const person=PEOPLE[id],loc=LOCATIONS[s.location]||LOCATIONS[person.home];const jitter=(hashString(id)%7)-3;return `<button class="npc" data-person="${id}" data-state="${s.state}" style="left:calc(${loc.x}% + ${jitter}px);top:calc(${loc.y}% + ${(hashString(id+"y")%5)-2}px)"><img src="${person.avatar}" alt="${esc(person.name)}"><i class="dot"></i><span class="npc-label">${esc(person.name)} · ${esc(s.label)}</span></button>`}).join("")
+}
+function renderSectorCard(key){
+  const s=data.sectors[key],a=sectorAnalysis(key),metrics=sectorMetrics(key).slice(0,4);return `<article class="panel sector-card"><div><div class="sector-top"><div class="sector-name"><div class="platform-icon">${sectorIcon(key)}</div><div><h3>${esc(s.title)}</h3><p>${esc(s.agent)} · ${key==="strategy"?"cruce de datos":key==="publishing"?"calendario y lanzamientos":"análisis del sector"}</p></div></div><span class="state-badge">${data.source==="live"?"ACTIVO":"MODO SEGURO"}</span></div><div class="sector-metrics">${metrics.map(([l,v])=>`<div class="mini"><small>${esc(l)}</small><b title="${esc(v)}">${esc(v)}</b></div>`).join("")}</div></div><div class="sector-actions"><button class="small-btn" data-report="${key}">Ver informe</button>${key!=="strategy"&&key!=="publishing"?`<button class="small-btn" data-person="${Object.keys(PEOPLE).find(id=>PEOPLE[id].home===key)||"atlas"}">Ver agente</button>`:""}</div></article>`
+}
+function renderActivity(states){
+  return Object.entries(states).map(([id,s])=>{const p=PEOPLE[id];return `<div class="activity-item"><img class="avatar-sm" src="${p.avatar}" alt=""><div><b>${esc(p.name)} · ${esc(s.label)}</b><p>${esc(p.role)}${s.until?` · ${untilText(s.until)}`:""}</p></div></div>`}).join("")
+}
+
+function wire(){
+  $("#refresh")?.addEventListener("click",()=>refresh(true));$("#bell")?.addEventListener("click",openFacu);$("#facuCenter")?.addEventListener("click",openFacu);$("#askFacu")?.addEventListener("click",openFacu);
+  $$('[data-report]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openReport(b.dataset.report)}));
+  $$('[data-person]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();openPerson(b.dataset.person)}));
+  $$('[data-facu]').forEach(b=>b.addEventListener('click',openFacu));$$('[data-direction]').forEach(b=>b.addEventListener('click',openDirection));
+}
+function openDrawer(html){$("#drawerRoot").innerHTML=`<div class="drawer-backdrop" id="backdrop"><aside class="drawer"><button class="drawer-close" id="closeDrawer">×</button>${html}</aside></div>`;$("#closeDrawer").onclick=closeDrawer;$("#backdrop").onclick=e=>{if(e.target.id==="backdrop")closeDrawer()}}
 function closeDrawer(){$("#drawerRoot").innerHTML=""}
+function openPerson(id){const p=PEOPLE[id],s=presence(id,new Date()),homeSector=SECTOR_ORDER.includes(p.home)?p.home:(id==="facu"?"strategy":null);const report=homeSector?sectorAnalysis(homeSector):null;openDrawer(`<div class="drawer-title"><img src="${p.avatar}" alt=""><div><h2>${esc(p.name)}</h2><p class="sub">${esc(p.role)}</p></div></div><div class="metric-grid"><div class="metric"><span>ESTADO</span><strong>${esc(s.label)}</strong></div><div class="metric"><span>UBICACIÓN</span><strong>${esc(LOCATIONS[s.location]?.label||"Oficina")}</strong></div></div><div class="block"><h4>Tarea actual</h4><p>${esc(taskFor(id,s))}</p></div>${report?`<div class="block"><h4>Su lectura</h4><p>${esc(report.summary)}</p></div><div class="block"><h4>Recomendación</h4><p>${esc(report.rec)}</p></div>`:""}`)}
+function taskFor(id,s){if(s.state==="meeting")return `Participando de ${s.label.toLowerCase()} ${untilText(s.until)}.`;if(s.state==="lunch")return `Almuerzo programado ${untilText(s.until)}. Después vuelve a su sector.`;if(s.state==="restroom")return "Pausa breve. Vuelve automáticamente a su puesto.";if(s.state==="offline")return "Fuera del horario laboral.";return ({sebas:"Revisando prioridades y decisiones pendientes.",facu:"Consolidando informes de los sectores y preparando notificaciones para Dirección.",chevy:"Analizando rendimiento, retención y señales de YouTube.",vera:"Revisando contenido y oportunidades para nuevas piezas de YouTube.",nora:"Analizando clips, alcance y crecimiento de TikTok SebasWit.",luca:"Revisando desempeño y continuidad del universo DUAL / Nexus.",iris:"Revisando Instagram y coherencia visual del proyecto.",echo:"Revisando catálogo y oportunidades de promoción musical.",atlas:"Comparando plataformas para definir prioridades.",luz:"Preparando recomendaciones que pueden convertirse en calendario de publicación."})[id]}
+function openReport(key){const s=data.sectors[key],a=sectorAnalysis(key),metrics=sectorMetrics(key);openDrawer(`<div class="drawer-title"><div class="platform-icon">${sectorIcon(key)}</div><div><h2>${esc(s.title)}</h2><p class="sub">Informe de ${esc(s.agent)}</p></div></div><div class="metric-grid">${metrics.map(([l,v])=>`<div class="metric"><span>${esc(l)}</span><strong>${esc(v)}</strong></div>`).join("")}</div><div class="block"><h4>Análisis del sector</h4><p>${esc(a.summary)}</p></div><div class="block"><h4>Recomendación para Facu</h4><p>${esc(a.rec)}</p></div><div class="block"><h4>Flujo interno</h4><p>${esc(s.agent)} informa a Atlas cuando hace falta cruzar plataformas. Facu recibe la conclusión y solo eleva a Dirección lo que requiere atención.</p></div>`)}
+function openDirection(){const unread=notifications.filter(n=>!n.read);openDrawer(`<div class="drawer-title"><img src="${PEOPLE.sebas.avatar}" alt=""><div><h2>Dirección · Sebas</h2><p class="sub">Decisiones y prioridades</p></div></div><div class="block"><h4>Prioridades actuales</h4><ul>${priorities().map(x=>`<li>${esc(x)}</li>`).join("")||"<li>Sin alertas críticas.</li>"}</ul></div><div class="block"><h4>Facu te dejó</h4><p>${unread.length?`${unread.length} notificación${unread.length===1?"":"es"} sin leer.`:"Todo al día."}</p></div>`)}
+function openFacu(){notifications=notifications.map(n=>({...n,read:true}));saveNotes();openDrawer(`<div class="drawer-title"><img src="${PEOPLE.facu.avatar}" alt=""><div><h2>Centro Facu</h2><p class="sub">Coordinación y notificaciones</p></div></div><div class="block"><h4>Últimas notificaciones</h4>${notifications.length?notifications.slice(0,30).map(n=>`<div class="note"><small>${new Date(n.createdAt).toLocaleString("es-AR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"})} · ${esc(sectorShort(n.sector))}</small><b>${esc(n.title)}</b><p>${esc(n.message)}</p></div>`).join(""):`<p>No hay notificaciones.</p>`}</div><div class="block"><h4>Consultar a Facu</h4><div class="ask"><input id="facuQuestion" placeholder="Ej.: ¿qué harías hoy?"><button class="small-btn primary" id="facuAsk">Preguntar</button></div><div id="facuAnswer" class="answer" style="display:none"></div></div>`);$("#facuAsk").onclick=answerFacu;$("#facuQuestion").onkeydown=e=>{if(e.key==="Enter")answerFacu()}}
+function answerFacu(){const q=($("#facuQuestion").value||"").toLowerCase(),ans=$("#facuAnswer");let text=`Hoy priorizaría: ${priorities().slice(0,3).join(" ")}`;if(q.includes("youtube"))text=sectorAnalysis("youtube").summary+" "+sectorAnalysis("youtube").rec;else if(q.includes("dual")||q.includes("nexus"))text=sectorAnalysis("tiktokDual").summary+" "+sectorAnalysis("tiktokDual").rec;else if(q.includes("tiktok"))text=sectorAnalysis("tiktokMain").summary+" "+sectorAnalysis("tiktokMain").rec;else if(q.includes("spotify")||q.includes("música")||q.includes("musica"))text=sectorAnalysis("spotify").summary+" "+sectorAnalysis("spotify").rec;else if(q.includes("instagram"))text=sectorAnalysis("instagram").summary+" "+sectorAnalysis("instagram").rec;else if(q.includes("reun"))text=meetingSummary();ans.style.display="block";ans.textContent=text}
+function meetingSummary(){const now=new Date(),active=Object.entries(PEOPLE).filter(([id])=>presence(id,now).state==="meeting").map(([id])=>PEOPLE[id].name);return active.length?`${active.join(", ")} están en reunión ahora. Cuando termine, vuelven a sus puestos y Facu recibe el resumen.`:"No hay una reunión activa ahora. Las reuniones están escalonadas durante el día."}
 
-async function load(showToast=false){try{const res=await fetch(`/api/studio?t=${Date.now()}`,{cache:"no-store"});if(!res.ok)throw new Error("api");DATA=await res.json()}catch{DATA=structuredClone(FALLBACK)}mergeNotes(DATA.notifications||[]);render();if(!Object.keys(agents).length){initAgents();applyAgentPositions();scheduleMotion()}else applyAgentPositions();if(showToast)toast(DATA.source==="live"?"Datos actualizados":"Usando datos seguros")}
-window.addEventListener("DOMContentLoaded",()=>{load(false);refreshTimer=setInterval(()=>load(false),120000)});
+async function refresh(user=false){
+  const before=data;
+  try{const res=await fetch(`/api/studio?t=${Date.now()}`,{cache:"no-store"});if(!res.ok)throw new Error("api");const json=await res.json();data=json}catch{data=structuredClone(SAFE_DATA)}
+  previousSnapshot=before;compareSnapshots(before,data);generateNotifications();render();if(user)toast(data.source==="live"?"Datos actualizados":"La API no respondió. Mantengo el modo seguro.")
+}
+function toast(msg){const old=$(".toast");if(old)old.remove();const el=document.createElement("div");el.className="toast";el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2500)}
+
+function tick(){const c=$("#clock");if(c)c.textContent=clock(new Date());const oldStates=$$('.npc').map(x=>`${x.dataset.person}:${x.dataset.state}`).join('|');const now=new Date();const newStates=Object.fromEntries(Object.keys(PEOPLE).map(id=>[id,presence(id,now)]));const newSig=Object.entries(newStates).map(([id,s])=>`${id}:${s.state}:${s.location}`).join('|');if(window.__presenceSig!==newSig){window.__presenceSig=newSig;render()}}
+
+window.addEventListener("DOMContentLoaded",async()=>{notifications=loadNotes();render();await refresh(false);window.__presenceSig="";setInterval(tick,30000);setInterval(()=>refresh(false),300000)});

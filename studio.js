@@ -1,6 +1,68 @@
-const API="https://connectors.windsor.ai";
-const SNAPSHOT={source:"safe",updatedAt:new Date().toISOString(),youtube:{subscribers:2680,totalViews:126321,videos:77,periodViews:119,periodLikes:3,topVideo:"LA BRUJA 🔮 Lunes 21 de Septiembre",topVideoViews:85,topRetention:111.23},tiktok:[{name:"SebasWit",followers:1108,totalLikes:17580,videos:21,periodViews:63,periodLikes:5},{name:"SERIES NEXUS IA",followers:25,totalLikes:206,videos:10,periodViews:1,periodLikes:0}],instagram:{name:"nexus.series.ia",followers:3,media:2,engagement:0},facebook:{name:"Un montón de historias.",fans:14353},spotify:{status:"pending",artist:"SebasWit",followers:0,popularity:0,albums:0},notifications:[{id:"safe-yt",sector:"youtube",title:"YouTube sigue siendo la señal principal",message:"LA BRUJA continúa como referencia reciente dentro del studio.",date:new Date().toISOString(),priority:"high"}]};
-const n=v=>Number.isFinite(Number(v))?Number(v):0;const sum=(r,f)=>r.reduce((a,x)=>a+n(x[f]),0);
-async function windsor(connector,fields,preset){const key=process.env.WINDSOR_API_KEY;if(!key)throw new Error("WINDSOR_API_KEY missing");const q=new URLSearchParams({api_key:key,fields:fields.join(","),_renderer:"json"});if(preset)q.set("date_preset",preset);const res=await fetch(`${API}/${connector}?${q.toString()}`,{headers:{"User-Agent":"SebasWeb-Studios/6.0"}});if(!res.ok)throw new Error(`${connector}:${res.status}`);const j=await res.json();return Array.isArray(j)?j:(Array.isArray(j?.data)?j.data:(Array.isArray(j?.result)?j.result:[]))}
-async function spotify(){const id=process.env.SPOTIFY_CLIENT_ID,secret=process.env.SPOTIFY_CLIENT_SECRET,artistId=process.env.SPOTIFY_ARTIST_ID;if(!id||!secret||!artistId)return {status:"pending",artist:"SebasWit",followers:0,popularity:0,albums:0};const tokenRes=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{Authorization:`Basic ${Buffer.from(`${id}:${secret}`).toString("base64")}`,"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=client_credentials"});if(!tokenRes.ok)throw new Error(`spotify-token:${tokenRes.status}`);const token=(await tokenRes.json()).access_token;const [artistRes,albumsRes]=await Promise.all([fetch(`https://api.spotify.com/v1/artists/${artistId}`,{headers:{Authorization:`Bearer ${token}`}}),fetch(`https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=50`,{headers:{Authorization:`Bearer ${token}`}})]);if(!artistRes.ok)throw new Error(`spotify-artist:${artistRes.status}`);const a=await artistRes.json();const al=albumsRes.ok?await albumsRes.json():{total:0};return {status:"live",artist:a.name||"SebasWit",followers:n(a.followers?.total),popularity:n(a.popularity),albums:n(al.total)} }
-module.exports=async function(req,res){res.setHeader("Content-Type","application/json; charset=utf-8");res.setHeader("Cache-Control","s-maxage=120, stale-while-revalidate=300");try{const [y,t,i,f,s]=await Promise.all([windsor("youtube",["account_name","subscriber_count","view_count","video_count","views","likes","comments","shares","average_view_percentage","video_title"],"last_30dT"),windsor("tiktok_organic",["account_name","total_followers_count","total_likes","videos_count","video_views","likes","comments","shares"],"last_30dT"),windsor("instagram",["account_name","followers_count","media_count","likes","comments","shares"],"last_30dT").catch(()=>[]),windsor("facebook_organic",["account_name","page_fans"],"last_30dT").catch(()=>[]),spotify().catch(()=>({status:"pending",artist:"SebasWit",followers:0,popularity:0,albums:0}))]);const y0=y[0]||{},top=[...y].sort((a,b)=>n(b.views)-n(a.views))[0]||{},ret=Math.max(0,...y.map(x=>n(x.average_view_percentage))),tm=t.find(x=>String(x.account_name).toLowerCase().includes("sebaswit"))||{},td=t.find(x=>String(x.account_name).toLowerCase().includes("series nexus"))||{},ig=[...i].reverse().find(x=>x.account_name)||{},fb=f[0]||{};const payload={source:"live",updatedAt:new Date().toISOString(),youtube:{subscribers:n(y0.subscriber_count),totalViews:n(y0.view_count),videos:n(y0.video_count),periodViews:sum(y,"views"),periodLikes:sum(y,"likes"),topVideo:String(top.video_title||"Sin datos"),topVideoViews:n(top.views),topRetention:ret},tiktok:[{name:"SebasWit",followers:n(tm.total_followers_count),totalLikes:n(tm.total_likes),videos:n(tm.videos_count),periodViews:n(tm.video_views),periodLikes:n(tm.likes)},{name:"SERIES NEXUS IA",followers:n(td.total_followers_count),totalLikes:n(td.total_likes),videos:n(td.videos_count),periodViews:n(td.video_views),periodLikes:n(td.likes)}],instagram:{name:String(ig.account_name||"nexus.series.ia"),followers:n(ig.followers_count),media:n(ig.media_count),engagement:sum(i,"likes")+sum(i,"comments")+sum(i,"shares")},facebook:{name:String(fb.account_name||"Un montón de historias."),fans:n(fb.page_fans)},spotify:s};payload.notifications=[{id:`yt-${String(top.video_title||"top").slice(0,30)}-${n(top.views)}`,sector:"youtube",title:"YouTube detectó la señal más fuerte",message:`“${String(top.video_title||"Sin datos")}” lidera el período con ${n(top.views).toLocaleString("es-AR")} vistas.`,date:new Date().toISOString(),priority:"high"},{id:`tt-${n(tm.video_views)}-${n(tm.total_followers_count)}`,sector:"tiktokMain",title:"TikTok SebasWit actualizado",message:`${n(tm.total_followers_count).toLocaleString("es-AR")} seguidores y ${n(tm.total_likes).toLocaleString("es-AR")} likes acumulados.`,date:new Date().toISOString(),priority:"medium"},{id:`dual-${n(td.video_views)}-${n(td.total_followers_count)}`,sector:"tiktokDual",title:"DUAL bajo seguimiento",message:"Conviene aumentar continuidad entre piezas para que el universo gane tracción.",date:new Date().toISOString(),priority:"medium"}];res.status(200).json(payload)}catch(e){console.error("studio fallback",e?.message||e);res.setHeader("Cache-Control","no-store");res.status(200).json(SNAPSHOT)}};
+const WINDSOR = "https://connectors.windsor.ai";
+const num = v => Number.isFinite(Number(v)) ? Number(v) : 0;
+const sum = (rows,key) => rows.reduce((a,r)=>a+num(r[key]),0);
+
+async function windsor(connector, fields, preset){
+  const key=process.env.WINDSOR_API_KEY;
+  if(!key) throw new Error("WINDSOR_API_KEY missing");
+  const qs=new URLSearchParams({api_key:key,fields:fields.join(","),_renderer:"json"});
+  if(preset) qs.set("date_preset",preset);
+  const res=await fetch(`${WINDSOR}/${connector}?${qs}`,{headers:{"User-Agent":"SebasWeb-Studios-Final/1.0"}});
+  if(!res.ok) throw new Error(`${connector}:${res.status}`);
+  const j=await res.json();
+  return Array.isArray(j)?j:Array.isArray(j?.result)?j.result:Array.isArray(j?.data)?j.data:[];
+}
+
+async function spotify(){
+  const id=process.env.SPOTIFY_CLIENT_ID, secret=process.env.SPOTIFY_CLIENT_SECRET, artistId=process.env.SPOTIFY_ARTIST_ID;
+  if(!id||!secret||!artistId) return {connected:false,artist:"SebasWit",followers:null,popularity:null,releases:null};
+  const tokenRes=await fetch("https://accounts.spotify.com/api/token",{method:"POST",headers:{Authorization:`Basic ${Buffer.from(`${id}:${secret}`).toString("base64")}`,"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=client_credentials"});
+  if(!tokenRes.ok) throw new Error(`spotify-token:${tokenRes.status}`);
+  const {access_token}=await tokenRes.json();
+  const headers={Authorization:`Bearer ${access_token}`};
+  const [artistRes,albumsRes]=await Promise.all([
+    fetch(`https://api.spotify.com/v1/artists/${artistId}`,{headers}),
+    fetch(`https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single&limit=50`,{headers})
+  ]);
+  if(!artistRes.ok) throw new Error(`spotify-artist:${artistRes.status}`);
+  const artist=await artistRes.json(); const albums=albumsRes.ok?await albumsRes.json():{items:[]};
+  return {connected:true,artist:artist.name,followers:num(artist.followers?.total),popularity:num(artist.popularity),releases:(albums.items||[]).length};
+}
+
+function safePayload(){
+  return {
+    source:"safe",updatedAt:new Date().toISOString(),
+    sectors:{
+      youtube:{title:"YouTube Lab",agent:"Chevy",metrics:{subscribers:2680,totalViews:126321,videos:77,periodViews:119,periodLikes:3,periodComments:1,periodShares:2,topVideo:"LA BRUJA 🔮 Lunes 21 de Septiembre",topVideoViews:85,topRetention:111.2}},
+      tiktokMain:{title:"TikTok SebasWit",agent:"Nora",metrics:{followers:1108,totalLikes:17580,videos:21,periodViews:63,periodLikes:5,periodComments:0,periodShares:0,profileViews:1}},
+      tiktokDual:{title:"TikTok DUAL / Nexus",agent:"Luca",metrics:{followers:25,totalLikes:206,videos:10,periodViews:1,periodLikes:0,periodComments:0,periodShares:0,profileViews:0}},
+      instagram:{title:"Instagram Nexus",agent:"Iris",metrics:{account:"nexus.series.ia",followers:3,mediaCount:2,reach:0,likes:0,comments:0,shares:0,engaged:0}},
+      spotify:{title:"Spotify",agent:"Echo",metrics:{connected:false,artist:"SebasWit",followers:null,popularity:null,releases:null}},
+      strategy:{title:"Sala de Estrategia",agent:"Atlas",metrics:{}}, publishing:{title:"Publishing",agent:"Luz",metrics:{}}
+    }
+  };
+}
+
+module.exports=async function handler(req,res){
+  res.setHeader("Content-Type","application/json; charset=utf-8");
+  res.setHeader("Cache-Control","s-maxage=120, stale-while-revalidate=300");
+  try{
+    const [yt,tt,ig,sp]=await Promise.all([
+      windsor("youtube",["account_name","subscriber_count","view_count","video_count","views","likes","comments","shares","average_view_percentage","video_title"],"last_30dT"),
+      windsor("tiktok_organic",["account_name","total_followers_count","total_likes","videos_count","video_views","likes","comments","shares","profile_views"],"last_30dT"),
+      windsor("instagram",["account_name","followers_count","media_count","reach","likes","comments","shares","accounts_engaged"],"last_30dT"),
+      spotify().catch(()=>({connected:false,artist:"SebasWit",followers:null,popularity:null,releases:null}))
+    ]);
+    const y0=yt[0]||{}, top=[...yt].sort((a,b)=>num(b.views)-num(a.views))[0]||{}, retention=Math.max(0,...yt.map(r=>num(r.average_view_percentage)));
+    const main=tt.find(r=>String(r.account_name||"").toLowerCase().includes("sebaswit"))||{};
+    const dual=tt.find(r=>String(r.account_name||"").toLowerCase().includes("series nexus ia"))||{};
+    const igInfo=[...ig].reverse().find(r=>r.followers_count!=null||r.media_count!=null)||ig[0]||{};
+    res.status(200).json({source:"live",updatedAt:new Date().toISOString(),sectors:{
+      youtube:{title:"YouTube Lab",agent:"Chevy",metrics:{subscribers:num(y0.subscriber_count),totalViews:num(y0.view_count),videos:num(y0.video_count),periodViews:sum(yt,"views"),periodLikes:sum(yt,"likes"),periodComments:sum(yt,"comments"),periodShares:sum(yt,"shares"),topVideo:String(top.video_title||"Sin datos"),topVideoViews:num(top.views),topRetention:retention}},
+      tiktokMain:{title:"TikTok SebasWit",agent:"Nora",metrics:{followers:num(main.total_followers_count),totalLikes:num(main.total_likes),videos:num(main.videos_count),periodViews:num(main.video_views),periodLikes:num(main.likes),periodComments:num(main.comments),periodShares:num(main.shares),profileViews:num(main.profile_views)}},
+      tiktokDual:{title:"TikTok DUAL / Nexus",agent:"Luca",metrics:{followers:num(dual.total_followers_count),totalLikes:num(dual.total_likes),videos:num(dual.videos_count),periodViews:num(dual.video_views),periodLikes:num(dual.likes),periodComments:num(dual.comments),periodShares:num(dual.shares),profileViews:num(dual.profile_views)}},
+      instagram:{title:"Instagram Nexus",agent:"Iris",metrics:{account:String(igInfo.account_name||"nexus.series.ia"),followers:num(igInfo.followers_count),mediaCount:num(igInfo.media_count),reach:sum(ig,"reach"),likes:sum(ig,"likes"),comments:sum(ig,"comments"),shares:sum(ig,"shares"),engaged:sum(ig,"accounts_engaged")}},
+      spotify:{title:"Spotify",agent:"Echo",metrics:sp}, strategy:{title:"Sala de Estrategia",agent:"Atlas",metrics:{}}, publishing:{title:"Publishing",agent:"Luz",metrics:{}}
+    }});
+  }catch(err){console.error(err?.message||err);res.setHeader("Cache-Control","no-store");res.status(200).json(safePayload())}
+};
