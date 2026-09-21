@@ -29,7 +29,10 @@ const ANCHORS={
 const ROOM_HOTSPOTS=[
  {key:'direction',label:'Dirección',x:15,y:3,w:30,h:18},{key:'coordination',label:'Coordinación',x:47,y:3,w:28,h:18},{key:'youtube',label:'YouTube Lab',x:11,y:22,w:17,h:21},{key:'tiktokMain',label:'TikTok SebasWit',x:28,y:22,w:14,h:21},{key:'tiktokDual',label:'TikTok DUAL / Nexus',x:42,y:22,w:15,h:21},{key:'instagram',label:'Instagram',x:57,y:22,w:12,h:21},{key:'spotify',label:'Spotify',x:69,y:22,w:12,h:21},{key:'meeting',label:'Sala de reuniones',x:10,y:44,w:23,h:22},{key:'strategy',label:'Sala de Estrategia',x:37,y:44,w:19,h:22},{key:'publishing',label:'Publishing',x:56,y:44,w:19,h:22},{key:'lunch',label:'Comedor / café',x:80,y:27,w:15,h:40},{key:'restroom',label:'Baño',x:83,y:5,w:12,h:20}
 ];
-let data=structuredClone(DATA_FALLBACK),states={},timer=null,insights=[];
+function cloneFallback(){return JSON.parse(JSON.stringify(DATA_FALLBACK))}
+function storageGet(k){try{return localStorage.getItem(k)}catch(e){console.warn('Storage no disponible',e);return null}}
+function storageSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){console.warn('Storage no disponible',e);return false}}
+let data=cloneFallback(),states={},timer=null,insights=[];
 function el(s){return document.querySelector(s)}function all(s){return[...document.querySelectorAll(s)]}function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function fmt(v){return Number(v||0).toLocaleString('es-AR')}
 function arNow(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date()).reduce((o,p)=>(o[p.type]=p.value,o),{});return{date:`${p.year}-${p.month}-${p.day}`,weekday:p.weekday,h:+p.hour,m:+p.minute,s:+p.second,mins:(+p.hour)*60+(+p.minute)}}
 function inRange(m,a,b){return m>=a&&m<b}function hash(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h}
@@ -57,15 +60,29 @@ function analyzeSector(key){const m=data.sectors[key]?.metrics||{};
  return{key,agent:'Luz',priority:1,finding:'Publishing queda listo para convertir decisiones en tareas.',action:'Pasar a calendario únicamente las acciones aprobadas por Dirección.'}}
 }
 function deriveInsights(){const keys=['youtube','tiktokMain','tiktokDual','instagram','spotify','strategy','publishing'];const list=keys.map(analyzeSector);const yt=list.find(x=>x.key==='youtube'),tk=list.find(x=>x.key==='tiktokMain');if(yt.priority>=3&&tk.priority>=3)list.push({key:'cross',agent:'Atlas',priority:3,finding:'Hay una oportunidad multiplataforma: YouTube tiene una señal fuerte mientras TikTok necesita movimiento.',action:'Adaptar el mejor arranque de YouTube a un TikTok corto, no copiar el video completo.'});return list.sort((a,b)=>b.priority-a.priority)}
-function getNotifications(){const raw=localStorage.getItem('sw_v11_notes');let notes=[];try{notes=raw?JSON.parse(raw):[]}catch{}const lim=Date.now()-10*86400000;return notes.filter(n=>new Date(n.date).getTime()>lim)}
-function saveNotifications(notes){localStorage.setItem('sw_v11_notes',JSON.stringify(notes.slice(0,100)))}
+function getNotifications(){const raw=storageGet('sw_v11_notes');let notes=[];try{notes=raw?JSON.parse(raw):[]}catch{}const lim=Date.now()-10*86400000;return notes.filter(n=>new Date(n.date).getTime()>lim)}
+function saveNotifications(notes){storageSet('sw_v11_notes',JSON.stringify(notes.slice(0,100)))}
 function addNote(note){let notes=getNotifications();if(notes.some(n=>n.id===note.id))return;notes.unshift({...note,read:false,date:note.date||new Date().toISOString()});saveNotifications(notes)}
 function noteSig(s){return hash(`${s.key}|${s.priority}|${s.action}`)}
 function buildNotes(){const d=arNow().date;insights.filter(x=>x.priority>=2).slice(0,5).forEach(x=>addNote({id:`${d}-${x.key}-${noteSig(x)}`,sector:x.key,title:`${x.agent} informó a Facu`,message:x.action,priority:x.priority}));detectMetricChanges()}
 function metricSnapshot(){return{yt:data.sectors.youtube.metrics.periodViews||0,tm:data.sectors.tiktokMain.metrics.periodViews||0,td:data.sectors.tiktokDual.metrics.periodViews||0,ig:data.sectors.instagram.metrics.reach||0}}
-function detectMetricChanges(){const now=metricSnapshot(),raw=localStorage.getItem('sw_v11_snapshot');let prev=null;try{prev=raw?JSON.parse(raw):null}catch{}if(prev){const changes=[['YouTube','yt',now.yt,prev.yt],['TikTok SebasWit','tm',now.tm,prev.tm],['TikTok DUAL','td',now.td,prev.td]];for(const[name,k,nv,pv]of changes){if(pv>0&&Math.abs(nv-pv)/pv>=.35)addNote({id:`change-${arNow().date}-${k}-${nv}`,sector:name,title:'Cambio relevante detectado',message:`${name} cambió de ${fmt(pv)} a ${fmt(nv)} en la métrica reciente. Facu lo dejó marcado para revisión.`,priority:3})}}localStorage.setItem('sw_v11_snapshot',JSON.stringify(now))}
+function detectMetricChanges(){const now=metricSnapshot(),raw=storageGet('sw_v11_snapshot');let prev=null;try{prev=raw?JSON.parse(raw):null}catch{}if(prev){const changes=[['YouTube','yt',now.yt,prev.yt],['TikTok SebasWit','tm',now.tm,prev.tm],['TikTok DUAL','td',now.td,prev.td]];for(const[name,k,nv,pv]of changes){if(pv>0&&Math.abs(nv-pv)/pv>=.35)addNote({id:`change-${arNow().date}-${k}-${nv}`,sector:name,title:'Cambio relevante detectado',message:`${name} cambió de ${fmt(pv)} a ${fmt(nv)} en la métrica reciente. Facu lo dejó marcado para revisión.`,priority:3})}}storageSet('sw_v11_snapshot',JSON.stringify(now))}
 function markNotesRead(){saveNotifications(getNotifications().map(n=>({...n,read:true})))}
-async function loadData(showToast=false){try{const r=await fetch(`/api/studio?t=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error();data=await r.json()}catch{data=structuredClone(DATA_FALLBACK)}insights=deriveInsights();buildNotes();render();if(showToast)toast('Datos actualizados')}
+async function loadData(showToast=false){
+ let timeout;
+ try{
+  const controller=new AbortController();timeout=setTimeout(()=>controller.abort(),6500);
+  const r=await fetch(`/api/studio?t=${Date.now()}`,{cache:'no-store',signal:controller.signal});
+  if(!r.ok)throw new Error('API '+r.status);
+  const incoming=await r.json();
+  if(incoming&&incoming.sectors)data=incoming;
+ }catch(e){console.warn('Usando datos seguros',e);data=cloneFallback()}
+ finally{if(timeout)clearTimeout(timeout)}
+ try{insights=deriveInsights()}catch(e){console.error('Error de análisis',e);insights=[]}
+ try{buildNotes()}catch(e){console.warn('Notificaciones no disponibles',e)}
+ try{render()}catch(e){console.error('Error de render',e);showBootError(e)}
+ if(showToast)toast('Datos actualizados')
+}
 function render(){const now=arNow(),notes=getNotifications(),unread=notes.filter(n=>!n.read).length;states=Object.fromEntries(Object.keys(AGENTS).map(id=>[id,currentAgentState(id,now)]));const counts={working:0,meeting:0,lunch:0,break:0};Object.values(states).forEach(s=>{if(counts[s.status]!==undefined)counts[s.status]++});
  el('#app').innerHTML=`<div class="shell"><header class="topbar"><div class="brand"><div class="brandmark">SW</div><div><h1>SebasWeb Studios</h1><p>V11 Pro · operación, análisis y decisiones</p></div></div><div class="top-actions"><div class="chip hide-sm"><small>${now.date}</small><b>${String(now.h).padStart(2,'0')}:${String(now.m).padStart(2,'0')}</b></div><div class="chip hide-sm"><small>Datos</small><b>${data.source==='live'?'EN VIVO':'SEGURO'}</b></div><button class="icon-btn" id="refresh">↻ Actualizar</button><button class="icon-btn bell" id="bell">🔔 Facu${unread?`<span class="bell-count">${unread}</span>`:''}</button></div></header>
  <section class="summary"><div class="summary-card"><small>Trabajando</small><strong>${counts.working}</strong><p>en sus puestos</p></div><div class="summary-card"><small>En reunión</small><strong>${counts.meeting}</strong><p>análisis conjunto</p></div><div class="summary-card"><small>Almuerzo</small><strong>${counts.lunch}</strong><p>turnos escalonados</p></div><div class="summary-card"><small>Prioridades</small><strong>${insights.filter(x=>x.priority>=3).length}</strong><p>detectadas por sectores</p></div><div class="summary-card"><small>Avisos nuevos</small><strong>${unread}</strong><p>Facu centraliza</p></div></section>
@@ -88,4 +105,18 @@ function closeOverlay(){el('#overlayRoot').innerHTML=''}
 function openRoom(room){const mapping={direction:'strategy',coordination:'strategy',youtube:'youtube',tiktokMain:'tiktokMain',tiktokDual:'tiktokDual',instagram:'instagram',spotify:'spotify',strategy:'strategy',publishing:'publishing'};if(mapping[room])return openSector(mapping[room]);const labels={meeting:'Sala de reuniones',lunch:'Comedor / café',restroom:'Baño'};openOverlay(`<div class="drawer-top"><div><h2>${labels[room]}</h2><p class="subtitle">Área común</p></div><button id="close" class="close">×</button></div><div class="block"><p>${room==='meeting'?'Los agentes aparecen acá únicamente durante reuniones programadas y luego regresan a su puesto.':room==='lunch'?'El almuerzo está dividido en turnos para mantener sectores activos durante todo el mediodía.':'Las pausas son breves y se asignan de forma estable para cada jornada.'}</p></div>`)}
 function tick(){const now=arNow(),next={};Object.keys(AGENTS).forEach(id=>next[id]=currentAgentState(id,now));let changed=false;Object.keys(next).forEach(id=>{if(!states[id]||states[id].anchor!==next[id].anchor||states[id].status!==next[id].status)changed=true});if(changed){states=next;render()}}
 function toast(t){const x=document.createElement('div');x.className='toast';x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),2200)}
-window.addEventListener('DOMContentLoaded',()=>{loadData(false);timer=setInterval(tick,60000);setInterval(()=>loadData(false),300000)})
+function showBootError(err){
+ const root=document.querySelector('#app');if(!root)return;
+ root.innerHTML=`<main class="loading"><div class="brand-loader">SW</div><h1>SebasWeb Studios</h1><p>No pude iniciar una parte del panel. Tocá recargar.</p><button onclick="location.reload()" style="margin-top:16px;padding:12px 18px;border-radius:12px;border:1px solid #4b68ff;background:#283b8f;color:white;font-weight:700">Recargar</button></main>`;
+}
+function boot(){
+ try{
+  insights=deriveInsights();
+  try{buildNotes()}catch(e){console.warn('Notificaciones no disponibles',e)}
+  render();
+ }catch(e){console.error('Fallo de inicio',e);showBootError(e)}
+ loadData(false);
+ if(!timer)timer=setInterval(tick,60000);
+ setInterval(()=>loadData(false),300000);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();

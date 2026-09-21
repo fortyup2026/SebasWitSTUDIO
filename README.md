@@ -1,3 +1,9 @@
+# SebasWeb Studios V11.1 Pro
+
+Hotfix de inicio móvil: el panel dibuja inmediatamente con datos seguros y actualiza la API en segundo plano. Si la API o el almacenamiento local fallan, la interfaz igual inicia.
+
+Subir todos los archivos a la raíz del repo, o reemplazar solamente `app.js` e `index.html` sobre V11 Pro.
+
 # SebasWeb Studios V11 Pro
 
 Versión V11 centrada en NPCs integrados al escenario y lógica operativa realista.
